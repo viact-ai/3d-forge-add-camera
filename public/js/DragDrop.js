@@ -22,9 +22,10 @@ function onDragOver(event) {
   switch (modelState) {
     case ModelState.unloaded: {
       modelState = ModelState.loading;
+      // Camera
       let documentId =
         "urn:" +
-        "dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6dmlhY3QtbW9kZWxzL2NhbWVyYV93aGl0ZQ";
+        "dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6dmlhY3QtbW9kZWxzL2NhbWVyYV93aGl0ZS5vYmo";
 
       Autodesk.Viewing.Document.load(documentId, (doc) => {
         let items = doc.getRoot().search(
