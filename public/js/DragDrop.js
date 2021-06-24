@@ -49,6 +49,7 @@ function onDragOver(event) {
           })
           .then(function (model2) {
             secondModel = model2;
+            console.log(model2)
             let bb = secondModel.getBoundingBox();
             extraZ = bb.max.z;
             modelState = ModelState.loaded;
