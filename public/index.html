@@ -27,6 +27,7 @@
     <link href="css/main.css" rel="stylesheet" />
     <script src="js/ForgeTree.js"></script>
     <script src="js/ForgeViewer.js"></script>
+    <script src="js/DragDrop.js"></script>
   </head>
 
   <body>
@@ -49,8 +50,23 @@
     <!-- End of navbar -->
     <div class="container-fluid fill">
       <div class="row fill">
-        <div class="col-sm-12 fill">
-          <div id="forgeViewer"></div>
+        <div class="col-sm-10 fill">
+          <div
+            id="forgeViewer"
+            ondragover="onDragOver(event)"
+            ondrop="onDrop(event)"
+          ></div>
+        </div>
+        <div class="col-sm-2 fill">
+          <div class="panel panel-default fill">
+            <div id="Camera" draggable="true" ondragstart="onDragStart(event)">
+              <img
+                src="https://img2.cgtrader.com/items/2519664/8dd22f2437/altcam-dcf51ir-surveillance-camera-3d-model-max-obj-fbx-stl-mat.jpg"
+                width="100%"
+              />
+              <img id="blank" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

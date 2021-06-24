@@ -55,7 +55,7 @@
     </div>
     <div id="MyCar" draggable="true" ondragstart="onDragStart(event)">
       <img
-        src="https://img2.cgtrader.com/items/2519664/8dd22f2437/altcam-dcf51ir-surveillance-camera-3d-model-max-obj-fbx-stl-mat.jpg"
+        src="https://customindz-profiles.s3-ap-northeast-1.amazonaws.com/app_icon.png"
         width="100%"
       />
       <img id="blank" />
@@ -74,6 +74,10 @@
     <!-- Developer JS -->
     <script>
       // this is the iframe URL that shows up when sharing a model embed on a page
+      var myRevitFile =
+        "https://myhub.autodesk360.com/ue29c89b7/shares/public/SH7f1edQT22b515c761e81af7c91890bcea5?mode=embed"; // Revit file (A360/Forge/Napa.rvt)
+      var myDwfxFile =
+        "https://autodesk3743.autodesk360.com/shares/public/SH919a0QTf3c32634dcf03b8a55be243c021?mode=embed"; // Sports Car.dwfx
 
       var viewer;
       let mainModel = null;
@@ -98,11 +102,14 @@
       }
 
       function getForgeToken(onTokenCallback) {
-        $.get({
-          url: "/api/forge/auth/token",
-          success: function (response) {
+        $.post({
+          url: myRevitFile
+            .replace("public", "sign")
+            .replace("mode=embed", "oauth2=true"),
+          data: "{}",
+          success: function (oauth) {
             if (onTokenCallback)
-              onTokenCallback(response.accessToken, oauth.validitySeconds);
+              onTokenCallback(oauth.accessToken, oauth.validitySeconds);
           },
         });
       }
@@ -127,9 +134,8 @@
           case ModelState.unloaded: {
             modelState = ModelState.loading;
             getURN(myDwfxFile, function (urn) {
-              let documentId =
-                "urn:" +
-                "dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6dmlhY3QtbW9kZWxzL2NhbWVyYV93aGl0ZQ";
+              console.log("Car", urn);
+              let documentId = "urn:" + urn;
 
               Autodesk.Viewing.Document.load(documentId, (doc) => {
                 let items = doc.getRoot().search(
@@ -222,25 +228,25 @@
         viewer = new Autodesk.Viewing.GuiViewer3D(viewerDiv);
         viewer.start();
 
-        let documentId =
-          "urn:" +
-          "dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6N3F4cHdndzl1eXl5eGQwZGJzeHdycmt2bWtwdGpiYmctZm9yZ2V0ZXN0YnVja2V0L0NvbW11bml0eV9TY2hvb2wuM2Rz";
+        getURN(myRevitFile, function (urn) {
+          let documentId = "urn:" + urn;
 
-        Autodesk.Viewing.Document.load(documentId, (doc) => {
-          let items = doc.getRoot().search(
-            {
-              type: "geometry",
-              role: "3d",
-            },
-            true
-          );
-          if (items.length === 0) {
-            console.error("Document contains no viewables.");
-            return;
-          }
+          Autodesk.Viewing.Document.load(documentId, (doc) => {
+            let items = doc.getRoot().search(
+              {
+                type: "geometry",
+                role: "3d",
+              },
+              true
+            );
+            if (items.length === 0) {
+              console.error("Document contains no viewables.");
+              return;
+            }
 
-          viewer.loadDocumentNode(doc, items[0], {}).then(function (model1) {
-            mainModel = model1;
+            viewer.loadDocumentNode(doc, items[0], {}).then(function (model1) {
+              mainModel = model1;
+            });
           });
         });
       });

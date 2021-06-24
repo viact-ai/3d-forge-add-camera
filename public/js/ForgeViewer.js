@@ -28,8 +28,9 @@ function launchViewer(urn) {
   function onDocumentLoadSuccess(doc) {
     // load the default view
     var viewables = doc.getRoot().getDefaultGeometry();
-    viewer.loadDocumentNode(doc, viewables).then((i) => {
+    viewer.loadDocumentNode(doc, viewables).then((model) => {
       // any additional action here?
+      mainModel = model;
     });
   }
 
