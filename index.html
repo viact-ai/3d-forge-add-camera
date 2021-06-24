@@ -98,14 +98,11 @@
       }
 
       function getForgeToken(onTokenCallback) {
-        $.post({
-          url: "https://myhub.autodesk360.com/ue29c89b7/shares/sign/SH7f1edQT22b515c761e81af7c91890bcea5?oauth2=true"
-            .replace("public", "sign")
-            .replace("mode=embed", "oauth2=true"),
-          data: "{}",
-          success: function (oauth) {
+        $.get({
+          url: "/api/forge/auth/token",
+          success: function (response) {
             if (onTokenCallback)
-              onTokenCallback(oauth.accessToken, oauth.validitySeconds);
+              onTokenCallback(response.accessToken, oauth.validitySeconds);
           },
         });
       }

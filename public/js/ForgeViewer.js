@@ -2,7 +2,7 @@ var viewer;
 
 // @urn the model to show
 // @viewablesId which viewables to show, applies to BIM 360 Plans folder
-function launchViewer(urn, viewableId) {
+function launchViewer(urn) {
   var options = {
     env: "AutodeskProduction",
     getAccessToken: getForgeToken,
@@ -26,10 +26,8 @@ function launchViewer(urn, viewableId) {
   });
 
   function onDocumentLoadSuccess(doc) {
-    // if a viewableId was specified, load that view, otherwise the default view
-    var viewables = viewableId
-      ? doc.getRoot().findByGuid(viewableId)
-      : doc.getRoot().getDefaultGeometry();
+    // load the default view
+    var viewables = doc.getRoot().getDefaultGeometry();
     viewer.loadDocumentNode(doc, viewables).then((i) => {
       // any additional action here?
     });
@@ -46,7 +44,7 @@ function launchViewer(urn, viewableId) {
 }
 
 function getForgeToken(callback) {
-  fetch("/api/forge/oauth/token").then((res) => {
+  fetch("/api/forge/auth/token").then((res) => {
     res.json().then((data) => {
       callback(data.access_token, data.expires_in);
     });

@@ -12,7 +12,6 @@
       "env": {
         "FORGE_CLIENT_ID": "your id here",
         "FORGE_CLIENT_SECRET": "your secret here",
-        "FORGE_CALLBACK_URL": "http://localhost:3000/api/forge/callback/oauth"
       }
     }
   ]

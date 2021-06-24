@@ -1,12 +1,11 @@
 const express = require("express");
 const axios = require("axios").default;
 const config = require("../config");
-const { OAuth } = require("./common/oauth");
 
 let router = express.Router();
 
 // Endpoint to return a 2-legged access token
-router.get("/oauth/token", async (req, res, next) => {
+router.get("/token", async (req, res, next) => {
   try {
     const params = new URLSearchParams();
     params.append("client_id", config.credentials.client_id);
@@ -22,8 +21,7 @@ router.get("/oauth/token", async (req, res, next) => {
         },
       }
     );
-    const accessToken = response.data.access_token;
-    res.json(accessToken);
+    res.json(response.data);
   } catch (err) {
     next(err);
   }
