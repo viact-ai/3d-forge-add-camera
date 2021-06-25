@@ -43,7 +43,6 @@ function onDragOver(event) {
 
         let tr = new THREE.Matrix4();
         tr.set(0, 0, 0.005, 0, 0.005, 0, 0, 0, 0, 0.005, 0, 0, 0, 0, 0, 1);
-
         viewer
           .loadDocumentNode(doc, items[0], {
             keepCurrentModels: true,
@@ -65,8 +64,6 @@ function onDragOver(event) {
         mainModel.getModelId(),
       ]);
       let pt = null;
-
-      console.log(res);
       if (res) {
         pt = res.intersectPoint;
       } else {
@@ -74,9 +71,10 @@ function onDragOver(event) {
       }
 
       let tr = secondModel.getPlacementTransform();
-      tr.elements[12] = 38.586087542180564;
-      tr.elements[13] = 11.483955834606995;
-      tr.elements[14] = 25.70408513728539 + extraZ;
+      tr.elements[12] = pt.x;
+      tr.elements[13] = pt.y;
+      tr.elements[14] = pt.z + extraZ;
+      console.log(tr.elements[12], tr.elements[13], tr.elements[14]);
       secondModel.setPlacementTransform(tr);
       viewer.impl.invalidate(true, true, true);
 
