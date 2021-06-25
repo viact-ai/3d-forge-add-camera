@@ -25,6 +25,7 @@ const devices = [
     },
     type: "temperature",
     sensorTypes: ["temperature"],
+    active: true,
   },
   {
     id: "Hall IV",
@@ -108,6 +109,68 @@ function initPage() {
   }
 }
 
+async function viewFromThisAngle() {
+  console.log("viwer.model.getUnitString()", viewer.model.getUnitString());
+  var lengthScale = 10; //! Use viwer.model.getUnitString(), the model I loaded is in `mm`, and BCF camera definition is in `m`
+  var eye = new THREE.Vector3(
+    2.803843040759871 * lengthScale,
+    14.568845808384443 * lengthScale,
+    0.8249055320631105 * lengthScale
+  );
+  var sightVec = new THREE.Vector3(
+    0.4898262677194313,
+    -0.8652456579090667,
+    0.1068652371988122
+  ).multiplyScalar(viewer.navigation.getFocalLength());
+  var target = eye.clone().add(sightVec);
+  var up = new THREE.Vector3(
+    -0.05264688190667085,
+    0.09299722978166312,
+    0.9942735142195238
+  );
+
+  //Since Forge Viewer will apply a global offset to the whole model
+  var offsetMatrix = viewer.model.getData().placementWithOffset;
+  var offsetEye = eye.applyMatrix4(offsetMatrix);
+  var offsetTarget = target.applyMatrix4(offsetMatrix);
+  var fov = 60;
+
+  var cameraView = {
+    aspect: viewer.getCamera().aspect,
+    isPerspective: true,
+    fov: fov,
+    position: offsetEye,
+    target: offsetTarget,
+    up: up,
+    orthoScale: 1,
+  };
+
+  viewer.impl.setViewFromCamera(cameraView);
+}
+
+function showCamerasList() {
+  const cam_list_container = document.getElementById("camera_list");
+  document
+    .querySelectorAll(".list-group-item")
+    .forEach((element) => element.remove());
+
+  const cam_list = document.createElement("ul");
+  cam_list.id = "camera_list-group";
+  cam_list.className = "list-group";
+
+  devices.forEach((device) => {
+    const cam = document.createElement("li");
+    cam.textContent = device.id;
+    cam.classList.add("list-group-item");
+    cam.addEventListener("click", () => {
+      console.log(device);
+      viewer.navigation.setPosition(device.position);
+    });
+    cam_list.appendChild(cam);
+  });
+  cam_list_container.appendChild(cam_list);
+}
+
 // Select Floor and add sprites
 async function addPoint(viewer, model) {
   // Remove existing sprites
@@ -137,12 +200,14 @@ async function addPoint(viewer, model) {
         keepCurrentModels: true,
         globalOffset: { x: 0, y: 0, z: 0 },
       });
-      // .then(onLoadFinished);
     });
   });
 
   await viewableData.finish();
   dataVizExt.addViewables(viewableData);
+
+  // Show updates
+  showCamerasList();
 }
 
 /**
@@ -164,6 +229,7 @@ async function onClickSelection(event) {
     var spId;
 
     // Check if we already extracted properties of the selected point
+    console.log(dbIdNameMap, sp.dbId);
     if (dbIdNameMap.has(sp.dbId)) {
       let dbProp = dbIdNameMap.get(sp.dbId);
       dbProp.index++;
