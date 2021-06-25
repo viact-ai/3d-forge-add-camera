@@ -128,30 +128,6 @@ async function addPoint(viewer, model) {
 
   await viewableData.finish();
   dataVizExt.addViewables(viewableData);
-
-  // Generate surfaceshading data by mapping devices to rooms.
-  const structureInfo = new Autodesk.DataVisualization.Core.ModelStructureInfo(
-    model
-  );
-  const heatmapData = await structureInfo.generateSurfaceShadingData(devices);
-
-  // Setup surfaceshading
-  await dataVizExt.setupSurfaceShading(model, heatmapData);
-
-  dataVizExt.registerSurfaceShadingColors("co2", [0x00ff00, 0xff0000]);
-  dataVizExt.registerSurfaceShadingColors("temperature", [0xff0000, 0x0000ff]);
-
-  /**
-   * Interface for application to decide the current value for the heatmap
-   * @param {Object} device device
-   * @param {string} sensorType sensor type
-   */
-  function getSensorValue(device, sensorType) {
-    let value = Math.random();
-    return value;
-  }
-
-  dataVizExt.renderSurfaceShading(floor.name, "temperature", getSensorValue);
 }
 
 /**
