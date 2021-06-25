@@ -124,6 +124,18 @@ async function addPoint(viewer, model) {
     );
 
     viewableData.addViewable(viewable);
+    Autodesk.Viewing.Document.load(`${cameraId}`, (doc) => {
+      const viewables = doc.getRoot().getDefaultGeometry();
+      viewer
+        .loadDocumentNode(doc, viewables, {
+          preserveView: true,
+          keepCurrentModels: true,
+          placementTransform: new THREE.Matrix4().setPosition(device.position),
+          keepCurrentModels: true,
+          globalOffset: { x: 0, y: 0, z: 0 },
+        })
+        .then(onLoadFinished);
+    });
   });
 
   await viewableData.finish();
