@@ -64,7 +64,6 @@ function initPage() {
       document.getElementById("forgeViewer"),
       { extensions: ["Autodesk.DocumentBrowser"] }
     );
-    viewer.loadExtension("TransformationExtension");
 
     const startedCode = viewer.start(
       undefined,
@@ -99,6 +98,7 @@ function initPage() {
       viewer.loadDocumentNode(viewerDocument, viewables).then((model) => {
         // any additional action here?
         mainModel = model;
+        console.log(viewer.model.getData().cameras);
       });
     }
 
