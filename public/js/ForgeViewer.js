@@ -1,4 +1,5 @@
 let viewer;
+let snapshotListner;
 const urn =
   "urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6N3F4cHdndzl1eXl5eGQwZGJzeHdycmt2bWtwdGpiYmctZm9yZ2V0ZXN0YnVja2V0L0NvbW11bml0eV9TY2hvb2wuM2Rz";
 const sensorStyleDefinitions = {
@@ -19,9 +20,9 @@ const devices = [
   {
     id: "Hall I",
     position: {
-      x: -14.297511041164398,
-      y: -77.6432056427002,
-      z: 11.31889820098877,
+      x: -121.24988486549135,
+      y: -4.766496336003649,
+      z: 91.73100476199237,
     },
     type: "temperature",
     sensorTypes: ["temperature"],
@@ -30,9 +31,9 @@ const devices = [
   {
     id: "Hall IV",
     position: {
-      x: 60.53697395324707,
-      y: -74.6432056427002,
-      z: 11.31889820098877,
+      x: 142.3636071439261,
+      y: -2.093410951315228,
+      z: -100.14377696546723,
     },
     type: "combo",
     sensorTypes: ["co2", "temperature"],
@@ -96,9 +97,9 @@ function initPage() {
     function onDocumentLoadSuccess(viewerDocument) {
       viewer.impl.toggleGroundShadow(true);
       const adskViewer = document.querySelector(".adsk-viewing-viewer");
-      const cam_list_container = document.createElement("div");
-      cam_list_container.id = "preview_snapshot";
-      adskViewer.appendChild(cam_list_container);
+      const preview_snapshot = document.createElement("div");
+      preview_snapshot.id = "preview_snapshot";
+      adskViewer.appendChild(preview_snapshot);
 
       // load the default view
       const viewables = viewerDocument.getRoot().getDefaultGeometry();
@@ -123,10 +124,18 @@ function showSnapshot(position) {
   const url =
     "https://cdn1.vectorstock.com/i/1000x1000/59/40/flat-line-hong-kong-banner-vector-18155940.jpg";
   preview_snapshot.innerHTML = `<img src="${url}" width="100%">`;
-
-  const canvasCoords = viewer.worldToClient(position);
-  preview_snapshot.style.left = canvasCoords.x + "px";
-  preview_snapshot.style.top = canvasCoords.y + "px";
+  if (snapshotListner) {
+    viewer.removeEventListener(snapshotListner);
+  }
+  snapshotListner = viewer.addEventListener(
+    Autodesk.Viewing.CAMERA_CHANGE_EVENT,
+    function (event) {
+      console.log(event);
+      const canvasCoords = viewer.worldToClient(position);
+      preview_snapshot.style.left = canvasCoords.x + "px";
+      preview_snapshot.style.top = canvasCoords.y + "px";
+    }
+  );
 }
 
 function showCamerasList() {
@@ -142,7 +151,7 @@ function showCamerasList() {
     cam.classList.add("list-group-item");
     cam.addEventListener("click", () => {
       console.log(device);
-      viewer.navigation.setPosition(device.position);
+      viewer.navigation.setPosition(device.cameraPosition || device.position);
       showSnapshot(device.position);
     });
     cam_list.appendChild(cam);
@@ -220,6 +229,8 @@ async function onClickSelection(event) {
       spId = name + "-1";
     }
 
+    let cameraPosition = viewer.navigation.getPosition();
+
     /** @type {RoomDevice} An object that defines the structure of a Device in a Room. */
     var sensorPoint = {
       id: spId,
@@ -227,7 +238,9 @@ async function onClickSelection(event) {
       position: sp.point,
       type: "my-sensor-type",
       sensorTypes: ["temperature"],
+      cameraPosition,
     };
+    console.log(sensorPoint);
     devices.push(sensorPoint);
     // Generate viewables for the updated devices list
     addPoint(viewer, model);
