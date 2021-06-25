@@ -64,6 +64,8 @@ function initPage() {
       document.getElementById("forgeViewer"),
       { extensions: ["Autodesk.DocumentBrowser"] }
     );
+    viewer.loadExtension("TransformationExtension");
+
     const startedCode = viewer.start(
       undefined,
       undefined,
@@ -126,15 +128,16 @@ async function addPoint(viewer, model) {
     viewableData.addViewable(viewable);
     Autodesk.Viewing.Document.load(`${cameraId}`, (doc) => {
       const viewables = doc.getRoot().getDefaultGeometry();
-      viewer
-        .loadDocumentNode(doc, viewables, {
-          preserveView: true,
-          keepCurrentModels: true,
-          placementTransform: new THREE.Matrix4().setPosition(device.position),
-          keepCurrentModels: true,
-          globalOffset: { x: 0, y: 0, z: 0 },
-        })
-        .then(onLoadFinished);
+      viewer.loadDocumentNode(doc, viewables, {
+        preserveView: true,
+        keepCurrentModels: true,
+        placementTransform: new THREE.Matrix4()
+          .setPosition(device.position)
+          .scale({ x: 0.05, y: 0.05, z: 0.05 }),
+        keepCurrentModels: true,
+        globalOffset: { x: 0, y: 0, z: 0 },
+      });
+      // .then(onLoadFinished);
     });
   });
 
@@ -151,7 +154,7 @@ async function addPoint(viewer, model) {
  * @param {{x:number, y:number, z:number}} event.clickInfo.point The position information of the selection point
  */
 async function onClickSelection(event) {
-  if (event.dbId == 0) {
+  if (event.dbId === 0) {
     // User clicked an area with no sprites
     var sp = event.clickInfo;
     const viewer = event.target;
@@ -184,6 +187,8 @@ async function onClickSelection(event) {
     devices.push(sensorPoint);
     // Generate viewables for the updated devices list
     addPoint(viewer, model);
+  } else {
+    console.log("clicked somecamera", event);
   }
 }
 
