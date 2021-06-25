@@ -95,7 +95,11 @@ function initPage() {
 
     function onDocumentLoadSuccess(viewerDocument) {
       viewer.impl.toggleGroundShadow(true);
-      initializeMarkup();
+      const adskViewer = document.querySelector(".adsk-viewing-viewer");
+      const cam_list_container = document.createElement("div");
+      cam_list_container.id = "preview_snapshot";
+      adskViewer.appendChild(cam_list_container);
+
       // load the default view
       const viewables = viewerDocument.getRoot().getDefaultGeometry();
       viewer.loadDocumentNode(viewerDocument, viewables).then((model) => {
@@ -108,6 +112,17 @@ function initPage() {
       console.error("Failed fetching Forge manifest");
     }
   }
+}
+
+function showSnapshot(position) {
+  const preview_snapshot = document.getElementById("preview_snapshot");
+  const url =
+    "https://img2.cgtrader.com/items/2519664/8dd22f2437/altcam-dcf51ir-surveillance-camera-3d-model-max-obj-fbx-stl-mat.jpg";
+  preview_snapshot.innerHTML(`<img src="${url}" width="100%">`);
+
+  const canvasCoords = viewer.worldToClient(position);
+  preview_snapshot.style.left = canvasCoords.x + "px";
+  preview_snapshot.style.top = canvasCoords.y + "px";
 }
 
 function showCamerasList() {
@@ -124,14 +139,10 @@ function showCamerasList() {
     cam.addEventListener("click", () => {
       console.log(device);
       viewer.navigation.setPosition(device.position);
+      showSnapshot(device.position);
     });
     cam_list.appendChild(cam);
   });
-
-  const canvasCoords = viewer.worldToClient(devices[0].position);
-  console.log(canvasCoords);
-  cam_list_container.style.left = canvasCoords.x + "px";
-  cam_list_container.style.top = canvasCoords.y + "px";
 
   cam_list_container.appendChild(cam_list);
 }
@@ -173,46 +184,6 @@ async function addPoint(viewer, model) {
 
   // Show updates
   showCamerasList();
-}
-
-function initializeMarkup() {
-  var elem = $("label");
-  // create 20 random markup points
-  // where icon is 0="Issue", 1="BIMIQ_Warning", 2="RFI", 3="BIMIQ_Hazard"
-  var dummyData = [];
-  for (let i = 0; i < 20; i++) {
-    dummyData.push({
-      icon: Math.round(Math.random() * 3),
-      x: Math.random() * 300 - 150,
-      y: Math.random() * 50 - 20,
-      z: Math.random() * 150 - 130,
-    });
-  }
-  window.dispatchEvent(new CustomEvent("newData", { detail: dummyData }));
-
-  function moveLabel(p) {
-    elem.style.left = ((p.x + 1) / 2) * window.innerWidth + "px";
-    elem.style.top = (-(p.y - 1) / 2) * window.innerHeight + "px";
-  }
-  // listen for the 'Markup' event, to re-position our <DIV> POPUP box
-  window.addEventListener(
-    "onMarkupMove",
-    (e) => {
-      moveLabel(e.detail);
-    },
-    false
-  );
-  window.addEventListener(
-    "onMarkupClick",
-    (e) => {
-      elem.style.display = "block";
-      moveLabel(e.detail);
-      elem.innerHTML = `<img src="img/${e.detail.id % 6}.jpg"><br>Markup ID:${
-        e.detail.id
-      }`;
-    },
-    false
-  );
 }
 
 /**

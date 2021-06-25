@@ -22,3 +22,15 @@ body {
 #forgeViewer {
   width: 100%;
 }
+
+#preview_snapshot {
+  position: absolute;
+  padding: 0.5em;
+  color: #adb5bd;
+  background: #212529;
+  opacity: 0.9;
+  border: 1px solid #adb5bd;
+  border-radius: 0 15px 15px 15px;
+  height: 200px;
+  width: 310px;
+}
