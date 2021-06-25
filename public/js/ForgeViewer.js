@@ -94,12 +94,13 @@ function initPage() {
     );
 
     function onDocumentLoadSuccess(viewerDocument) {
+      viewer.impl.toggleGroundShadow(true);
+      initializeMarkup();
       // load the default view
       const viewables = viewerDocument.getRoot().getDefaultGeometry();
       viewer.loadDocumentNode(viewerDocument, viewables).then((model) => {
         // any additional action here?
         mainModel = model;
-        console.log(viewer.model.getData().cameras);
       });
     }
 
@@ -109,51 +110,9 @@ function initPage() {
   }
 }
 
-async function viewFromThisAngle() {
-  console.log("viwer.model.getUnitString()", viewer.model.getUnitString());
-  var lengthScale = 10; //! Use viwer.model.getUnitString(), the model I loaded is in `mm`, and BCF camera definition is in `m`
-  var eye = new THREE.Vector3(
-    2.803843040759871 * lengthScale,
-    14.568845808384443 * lengthScale,
-    0.8249055320631105 * lengthScale
-  );
-  var sightVec = new THREE.Vector3(
-    0.4898262677194313,
-    -0.8652456579090667,
-    0.1068652371988122
-  ).multiplyScalar(viewer.navigation.getFocalLength());
-  var target = eye.clone().add(sightVec);
-  var up = new THREE.Vector3(
-    -0.05264688190667085,
-    0.09299722978166312,
-    0.9942735142195238
-  );
-
-  //Since Forge Viewer will apply a global offset to the whole model
-  var offsetMatrix = viewer.model.getData().placementWithOffset;
-  var offsetEye = eye.applyMatrix4(offsetMatrix);
-  var offsetTarget = target.applyMatrix4(offsetMatrix);
-  var fov = 60;
-
-  var cameraView = {
-    aspect: viewer.getCamera().aspect,
-    isPerspective: true,
-    fov: fov,
-    position: offsetEye,
-    target: offsetTarget,
-    up: up,
-    orthoScale: 1,
-  };
-
-  viewer.impl.setViewFromCamera(cameraView);
-}
-
 function showCamerasList() {
   const cam_list_container = document.getElementById("camera_list");
-  document
-    .querySelectorAll(".list-group-item")
-    .forEach((element) => element.remove());
-
+  cam_list_container.innerHTML = "";
   const cam_list = document.createElement("ul");
   cam_list.id = "camera_list-group";
   cam_list.className = "list-group";
@@ -168,6 +127,12 @@ function showCamerasList() {
     });
     cam_list.appendChild(cam);
   });
+
+  const canvasCoords = viewer.worldToClient(devices[0].position);
+  console.log(canvasCoords);
+  cam_list_container.style.left = canvasCoords.x + "px";
+  cam_list_container.style.top = canvasCoords.y + "px";
+
   cam_list_container.appendChild(cam_list);
 }
 
@@ -210,6 +175,46 @@ async function addPoint(viewer, model) {
   showCamerasList();
 }
 
+function initializeMarkup() {
+  var elem = $("label");
+  // create 20 random markup points
+  // where icon is 0="Issue", 1="BIMIQ_Warning", 2="RFI", 3="BIMIQ_Hazard"
+  var dummyData = [];
+  for (let i = 0; i < 20; i++) {
+    dummyData.push({
+      icon: Math.round(Math.random() * 3),
+      x: Math.random() * 300 - 150,
+      y: Math.random() * 50 - 20,
+      z: Math.random() * 150 - 130,
+    });
+  }
+  window.dispatchEvent(new CustomEvent("newData", { detail: dummyData }));
+
+  function moveLabel(p) {
+    elem.style.left = ((p.x + 1) / 2) * window.innerWidth + "px";
+    elem.style.top = (-(p.y - 1) / 2) * window.innerHeight + "px";
+  }
+  // listen for the 'Markup' event, to re-position our <DIV> POPUP box
+  window.addEventListener(
+    "onMarkupMove",
+    (e) => {
+      moveLabel(e.detail);
+    },
+    false
+  );
+  window.addEventListener(
+    "onMarkupClick",
+    (e) => {
+      elem.style.display = "block";
+      moveLabel(e.detail);
+      elem.innerHTML = `<img src="img/${e.detail.id % 6}.jpg"><br>Markup ID:${
+        e.detail.id
+      }`;
+    },
+    false
+  );
+}
+
 /**
  * Handles the 'POINT_SELECTION_CHANGE' event.
  * Generates a JSON object representing a {@link RoomDevice} based on the selected point on the Viewer canvas.
@@ -229,7 +234,6 @@ async function onClickSelection(event) {
     var spId;
 
     // Check if we already extracted properties of the selected point
-    console.log(dbIdNameMap, sp.dbId);
     if (dbIdNameMap.has(sp.dbId)) {
       let dbProp = dbIdNameMap.get(sp.dbId);
       dbProp.index++;
