@@ -43,7 +43,6 @@ function onDragOver(event) {
 
         let tr = new THREE.Matrix4();
         tr.set(0, 0, 0.005, 0, 0.005, 0, 0, 0, 0, 0.005, 0, 0, 0, 0, 0, 1);
-        tr.scale(new THREE.Vector3(scale, -scale, scale));
 
         viewer
           .loadDocumentNode(doc, items[0], {

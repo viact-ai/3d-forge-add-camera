@@ -192,7 +192,7 @@ async function onClickSelection(event) {
       type: "my-sensor-type",
       sensorTypes: ["temperature"],
     };
-    console.log(sp.point);
+
     devices.push(sensorPoint);
     // Generate viewables for the updated devices list
     addPoint(viewer, model);
