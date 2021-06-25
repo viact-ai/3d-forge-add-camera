@@ -114,11 +114,15 @@ function initPage() {
   }
 }
 
+/**
+ *
+ * @param {*} position x, y , z of device
+ */
 function showSnapshot(position) {
   const preview_snapshot = document.getElementById("preview_snapshot");
   const url =
-    "https://img2.cgtrader.com/items/2519664/8dd22f2437/altcam-dcf51ir-surveillance-camera-3d-model-max-obj-fbx-stl-mat.jpg";
-  preview_snapshot.innerHTML(`<img src="${url}" width="100%">`);
+    "https://cdn1.vectorstock.com/i/1000x1000/59/40/flat-line-hong-kong-banner-vector-18155940.jpg";
+  preview_snapshot.innerHTML = `<img src="${url}" width="100%">`;
 
   const canvasCoords = viewer.worldToClient(position);
   preview_snapshot.style.left = canvasCoords.x + "px";
