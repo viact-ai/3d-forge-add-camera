@@ -1,3 +1,8 @@
+// Camera
+let cameraId =
+  "urn:" +
+  "dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6dmlhY3QtbW9kZWxzL2NhbWVyYV93aGl0ZS5vYmo";
+
 function onDragStart(event) {
   event.dataTransfer.effectAllowed = "copy";
   // Hide the dragged image
@@ -22,12 +27,8 @@ function onDragOver(event) {
   switch (modelState) {
     case ModelState.unloaded: {
       modelState = ModelState.loading;
-      // Camera
-      let documentId =
-        "urn:" +
-        "dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6dmlhY3QtbW9kZWxzL2NhbWVyYV93aGl0ZS5vYmo";
 
-      Autodesk.Viewing.Document.load(documentId, (doc) => {
+      Autodesk.Viewing.Document.load(cameraId, (doc) => {
         let items = doc.getRoot().search(
           {
             type: "geometry",
@@ -42,6 +43,8 @@ function onDragOver(event) {
 
         let tr = new THREE.Matrix4();
         tr.set(0, 0, 0.005, 0, 0.005, 0, 0, 0, 0, 0.005, 0, 0, 0, 0, 0, 1);
+        tr.scale(new THREE.Vector3(scale, -scale, scale));
+
         viewer
           .loadDocumentNode(doc, items[0], {
             keepCurrentModels: true,
@@ -49,7 +52,7 @@ function onDragOver(event) {
           })
           .then(function (model2) {
             secondModel = model2;
-            console.log(model2)
+            console.log(model2);
             let bb = secondModel.getBoundingBox();
             extraZ = bb.max.z;
             modelState = ModelState.loaded;
@@ -64,6 +67,7 @@ function onDragOver(event) {
       ]);
       let pt = null;
 
+      console.log(res);
       if (res) {
         pt = res.intersectPoint;
       } else {
@@ -71,9 +75,9 @@ function onDragOver(event) {
       }
 
       let tr = secondModel.getPlacementTransform();
-      tr.elements[12] = pt.x;
-      tr.elements[13] = pt.y;
-      tr.elements[14] = pt.z + extraZ;
+      tr.elements[12] = 38.586087542180564;
+      tr.elements[13] = 11.483955834606995;
+      tr.elements[14] = 25.70408513728539 + extraZ;
       secondModel.setPlacementTransform(tr);
       viewer.impl.invalidate(true, true, true);
 

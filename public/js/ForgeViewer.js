@@ -92,8 +92,12 @@ function initPage() {
     );
 
     function onDocumentLoadSuccess(viewerDocument) {
-      var defaultModel = viewerDocument.getRoot().getDefaultGeometry(true);
-      viewer.loadDocumentNode(viewerDocument, defaultModel);
+      // load the default view
+      const viewables = viewerDocument.getRoot().getDefaultGeometry();
+      viewer.loadDocumentNode(viewerDocument, viewables).then((model) => {
+        // any additional action here?
+        mainModel = model;
+      });
     }
 
     function onDocumentLoadFailure() {
@@ -188,7 +192,7 @@ async function onClickSelection(event) {
       type: "my-sensor-type",
       sensorTypes: ["temperature"],
     };
-
+    console.log(sp.point);
     devices.push(sensorPoint);
     // Generate viewables for the updated devices list
     addPoint(viewer, model);
