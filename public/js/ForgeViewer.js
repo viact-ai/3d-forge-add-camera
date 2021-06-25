@@ -154,7 +154,7 @@ async function addPoint(viewer, model) {
  * @param {{x:number, y:number, z:number}} event.clickInfo.point The position information of the selection point
  */
 async function onClickSelection(event) {
-  if (event.dbId === 0) {
+  if (event.dbId == 0 && event.clickInfo) {
     // User clicked an area with no sprites
     var sp = event.clickInfo;
     const viewer = event.target;
@@ -183,12 +183,9 @@ async function onClickSelection(event) {
       type: "my-sensor-type",
       sensorTypes: ["temperature"],
     };
-
     devices.push(sensorPoint);
     // Generate viewables for the updated devices list
     addPoint(viewer, model);
-  } else {
-    console.log("clicked somecamera", event);
   }
 }
 
